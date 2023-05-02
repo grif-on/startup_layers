@@ -115,7 +115,7 @@ class MicroLayer {
      * Возвращает строку приемлимую для MicroLayer.LoadLayout() или записи в файл .
      * Перед получением строки можно модифицировать необходимые поля за счёт функции modificator .
      * @param {Asset} map 
-     * @param {Function} map 
+     * @param {Function} modificator 
      */
     static getCurrentLayout(map, modificator = function () { }) {
         let accStr = "";
@@ -134,7 +134,7 @@ class MicroLayer {
      * Создаёт слои в древе Тайлида на основе строки произведённой getCurrentLayout() .
      * @param {Asset} map 
      * @param {String} layout
-     * @param {Number} layout
+     * @param {Number} offset
      */
     static loadLayout(map, layout, offset = 0) {
         offset *= -1;
