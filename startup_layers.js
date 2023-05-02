@@ -301,6 +301,7 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
 
 })
 
+if (tiled.activeAsset === null) SaveCurrentLayersLayout.enabled = false;
 
 SaveCurrentLayersLayout.text = "Save current layers layout";
 SaveCurrentLayersLayout.icon = "ext:save.png";
@@ -309,6 +310,11 @@ tiled.extendMenu("File", [
     { separator: true },
     { action: "Save current layers layout", before: "Close" }
 ]);
+
+tiled.activeAssetChanged.connect(function (map) {
+    tiled.log("active changed");
+    SaveCurrentLayersLayout.enabled = (!(map === null));
+});
 
 let configs = getConfigsNames(globalTiledPath + "/storage/startup_layers");
 tiled.log("Found startup_layers configs = " + configs);
