@@ -295,7 +295,7 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
     layoutRef.checkable = true;
     layoutRef.iconVisibleInMenu = false;
     LayoutManager.registerAction(layoutRef);
-    tiled.extendMenu("Layer", [
+    tiled.extendMenu("File", [
         { action: systemName, before: "Delete selected layout" }
     ]);
 
@@ -305,9 +305,9 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
 SaveCurrentLayersLayout.text = "Save current layers layout";
 SaveCurrentLayersLayout.icon = "ext:save.png";
 
-tiled.extendMenu("Layer", [
+tiled.extendMenu("File", [
     { separator: true },
-    { action: "Save current layers layout", before: "ToggleSelectedLayers" }
+    { action: "Save current layers layout", before: "Close" }
 ]);
 
 let configs = getConfigsNames(globalTiledPath + "/storage/startup_layers");
@@ -324,8 +324,8 @@ defaultLayoutRef.text = "layout - default";
 defaultLayoutRef.checkable = true;
 defaultLayoutRef.iconVisibleInMenu = false;
 LayoutManager.registerAction(defaultLayoutRef);
-tiled.extendMenu("Layer", [
-    { action: systemName, before: "ToggleSelectedLayers" }
+tiled.extendMenu("File", [
+    { action: systemName, before: "Close" }
 ]);
 
 configs.forEach(element => {
@@ -338,8 +338,8 @@ configs.forEach(element => {
     layoutRef.checkable = true;
     layoutRef.iconVisibleInMenu = false;
     LayoutManager.registerAction(layoutRef);
-    tiled.extendMenu("Layer", [
-        { action: systemName, before: "ToggleSelectedLayers" }
+    tiled.extendMenu("File", [
+        { action: systemName, before: "Close" }
     ]);
 });
 
@@ -412,8 +412,8 @@ const DeleteSelectedLayout = tiled.registerAction("Delete selected layout", func
 
 DeleteSelectedLayout.text = "Delete selected layout";
 // DeleteSelectedLayout.icon = "";
-tiled.extendMenu("Layer", [
-    { action: "Delete selected layout", before: "ToggleSelectedLayers" }
+tiled.extendMenu("File", [
+    { action: "Delete selected layout", before: "Close" }
 ]);
 
 
@@ -428,8 +428,8 @@ const AboutStartupLayers = tiled.registerAction("About startup layers", function
 });
 AboutStartupLayers.text = "About startup layers";
 // AboutStartupLayers.icon = "";
-tiled.extendMenu("Layer", [
-    { action: "About startup layers", before: "ToggleSelectedLayers" },
+tiled.extendMenu("File", [
+    { action: "About startup layers", before: "Close" },
     { separator: true }
 ]);
 
