@@ -132,6 +132,7 @@ class MicroLayer {
 
     /**
      * Создаёт слои в древе Тайлида на основе строки произведённой getCurrentLayout() .
+     * Возвращает массив из MicroLayer использованных при загрузке .
      * @param {Asset} map 
      * @param {String} layout
      * @param {Number} offset
@@ -139,11 +140,15 @@ class MicroLayer {
     static loadLayout(map, layout, offset = 0) {
         offset *= -1;
         layout = JSON.parse("{\n" + layout + "\n}");
+        let arrayOfMicroLayers = [];
         for (const number in layout) {
             let layer = layout[number];
-            let tiledLayer = ((new MicroLayer).copyFromObject(layer).constructTiledLayer());
+            let microLayer = (new MicroLayer).copyFromObject(layer);
+            arrayOfMicroLayers.push(microLayer);
+            let tiledLayer = (microLayer.constructTiledLayer());
             if (tiledLayer !== null) map.insertLayerAt(number - offset, tiledLayer); else offset++;
         }
+        return arrayOfMicroLayers;
     }
 
 }
@@ -349,6 +354,7 @@ if (configs.includes(selectedLayout)) {
 }
 
 //================================== new map created ==================================//
+let cashedArrayOfMicroLayers = null;
 tiled.assetCreated.connect(function (map) {
     map.macro("Load layers from config", function () {
         checkOptions(globalTiledPath + "/storage/startup_layers");
@@ -359,25 +365,34 @@ tiled.assetCreated.connect(function (map) {
 
         if (selectedLayout === "default" || selectedLayout === "") {
             let configR = new TextFile("ext:default.config", TextFile.ReadOnly);
-            MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
+            cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
             configR.close();
         } else {
             if (File.exists(globalTiledPath + "/storage/startup_layers/" + selectedLayout + ".config")) {
                 let configR = new TextFile(globalTiledPath + "/storage/startup_layers/" + selectedLayout + ".config", TextFile.ReadOnly);
-                MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
+                cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
                 configR.close();
             } else {
                 tiled.warn("Can't find \"" + selectedLayout + "\" , switched to default")
                 LayoutManager.switchTo("default");
                 setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
+                cashedArrayOfMicroLayers = null;
             }
         }
         map.removeLayerAt(0); //Delete default "Tile Layer 1"
     });
 
     let reselectLayers = function () {
-        map.selectedLayers = [/*map.layerAt(3), map.layerAt(2)*/]; //todo завершить код автовыбора слоёв
-        map.selectedLayersChanged.disconnect(reselectLayers);
+        map.selectedLayersChanged.disconnect(reselectLayers); // дисконект должен быть в начале функции , иначе возможна рекурсия  
+        map.selectedLayers = [];
+        if (cashedArrayOfMicroLayers !== null) {
+            let arrayOfTiledLayers = [];
+            for (let i = 0; i < cashedArrayOfMicroLayers.length; i++) {
+                const microLayer = cashedArrayOfMicroLayers[i];
+                if (microLayer.selected === true) arrayOfTiledLayers.push(map.layerAt(i));
+            }
+            if (arrayOfTiledLayers.length > 0) map.selectedLayers = arrayOfTiledLayers;
+        }
     }
     map.selectedLayersChanged.connect(reselectLayers); // тайлид автовыбирает самый нижний слой в "следующем кадре" , так что , приходится так вот исхищрятся
 })
