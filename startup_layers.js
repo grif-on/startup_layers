@@ -190,6 +190,9 @@ class LayoutManager {
             tiled.log("name = " + name + (" ").repeat(40 - Math.min(Math.max(name.length, 0), 39)) + "ref = " + ref);
         });
     }
+    static isEmpty() {
+        return (LayoutManager._layouts.size < 1);
+    }
 }
 LayoutManager._layouts = new Map;
 
@@ -209,6 +212,7 @@ function checkOptions(where) {
         let optionsW = new TextFile(where + "/options.ini", TextFile.ReadWrite);
         optionsW.write("default");
         optionsW.close();
+        if (!(LayoutManager.isEmpty())) LayoutManager.switchTo("default");
         if (!File.exists(where + "/blank.config")) {
             let configW = new TextFile(where + "/blank.config", TextFile.ReadWrite);
             configW.write("");
@@ -216,7 +220,9 @@ function checkOptions(where) {
         }
         if (!File.exists(where + "/one object layer.config")) {
             let configW = new TextFile(where + "/one object layer.config", TextFile.ReadWrite);
-            configW.write("\"0\":\n" + JSON.stringify(new MicroLayer(), null, "\t"));
+            let microLayer = new MicroLayer();
+            microLayer.selected = true;
+            configW.write("\"0\":\n" + JSON.stringify(microLayer, null, "\t"));
             configW.close();
         }
     }
