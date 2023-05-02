@@ -417,6 +417,7 @@ const DeleteSelectedLayout = tiled.registerAction("Delete selected layout", func
 });
 
 DeleteSelectedLayout.text = "Delete selected layout";
+DeleteSelectedLayout.icon = "ext:delete.png";
 // DeleteSelectedLayout.icon = "";
 tiled.extendMenu("File", [
     { action: "Delete selected layout", before: "Close" }
@@ -433,6 +434,7 @@ const AboutStartupLayers = tiled.registerAction("About startup layers", function
     tiled.alert(message, "About startup layers");
 });
 AboutStartupLayers.text = "About startup layers";
+AboutStartupLayers.icon = "ext:about.png";
 // AboutStartupLayers.icon = "";
 tiled.extendMenu("File", [
     { action: "About startup layers", before: "Close" },
