@@ -97,7 +97,7 @@ class MicroLayer {
                 layer = new ObjectGroup(); break;
             case "GroupLayer":
                 layer = new GroupLayer();
-                tiled.warn("Sorry , game doesn't support Group Layers , so they are not supported in script neither .")
+                tiled.warn("Sorry , game doesn't support Group Layers , so they are not supported in script neither ." + "\n\tIn \"" + scriptName + "\"")
                 return null;
                 break;
         }
@@ -174,7 +174,7 @@ class LayoutManager {
                     tiled.log("deleted");
                 }
             } else {
-                tiled.warn("Can't find \"" + keyName + "\" or smomething wrong in deleteAction method");
+                tiled.warn("Can't find \"" + keyName + "\" or smomething wrong in \"deleteAction\" method" + "\n\tIn \"" + scriptName + "\"");
             }
         }
     }
@@ -200,13 +200,19 @@ LayoutManager._layouts = new Map;
 
 
 
+let scriptPathName = __filename;
+let scriptName = FileInfo.fileName(scriptPathName);
 
 let globalScriptsPath = tiled.extensionsPath;
-tiled.log(globalScriptsPath);
 let globalTiledPath = globalScriptsPath.slice(0, globalScriptsPath.lastIndexOf("/"));
 if (!File.exists(globalTiledPath + "/storage/startup_layers")) {
     File.makePath(globalTiledPath + "/storage/startup_layers");
 }
+
+tiled.log("scriptPathName = " + scriptPathName);
+tiled.log("scriptName = " + scriptName);
+tiled.log("globalScriptsPath = " + globalScriptsPath);
+tiled.log("globalTiledPath = " + globalTiledPath);
 
 function checkOptions(where) {
     let map = tiled.activeAsset;
@@ -362,7 +368,7 @@ configs.forEach(element => {
 if (configs.includes(selectedLayout)) {
     LayoutManager.switchTo(selectedLayout);
 } else {
-    if (selectedLayout !== "default") tiled.warn("can't find \"" + selectedLayout + "\" , switched to default");
+    if (selectedLayout !== "default") tiled.warn("can't find \"" + selectedLayout + "\" , switched to default" + "\n\tIn \"" + scriptName + "\"");
     LayoutManager.switchTo("default");
     setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
 }
@@ -387,7 +393,7 @@ tiled.assetCreated.connect(function (map) {
                 cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
                 configR.close();
             } else {
-                tiled.warn("Can't find \"" + selectedLayout + "\" , switched to default")
+                tiled.warn("Can't find \"" + selectedLayout + "\" , switched to default" + "\n\tIn \"" + scriptName + "\"")
                 LayoutManager.switchTo("default");
                 setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
                 cashedArrayOfMicroLayers = null;
