@@ -184,7 +184,7 @@ class LayoutManager {
         LayoutManager._layouts.forEach((ref, name) => {
             if (name === key) ref.checked = true; else ref.checked = false;
         });
-        tiled.log("switched to | " + key + " | " + layoutRef);
+        tiled.log("switched to | \"" + key + "\" | " + layoutRef);
     }
     static printAllRegistered() {
         tiled.log("\t\tLayoutManager");
@@ -241,7 +241,7 @@ function getConfigsNames(where) {
     let storageOfStartupLayers = File.directoryEntries(where, 2); //2 - only files
     let configs = [];
     storageOfStartupLayers.forEach(element => {
-        if (!(element === "default.config")) { //игнорировать одноимённый конфиг в storage , для людей которые догадаються вручную создать такую копию
+        if ((!(element === "default.config")) || (!(element === "default images.config"))) { //игнорировать одноимённый конфиг в storage , для людей которые догадаються вручную создать такую копию
             if (element.endsWith(".config")) configs.push(element.slice(0, element.length - 7));
         }
     });
@@ -283,11 +283,12 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
     if (layoutName.length > 248) { layoutName = layoutName.slice(0, 248); } // 248(name) + 7(.config) = 255
 
     switch (layoutName) {
-        case "default": tiled.alert("You can't overwrite default layout (because it is auto updated via steam)");
+        case "default": tiled.alert("You can't overwrite \"default\" layout (because it is auto updated via steam)");
+        case "default images": tiled.alert("You can't overwrite \"default images\" layout (because it is auto updated via steam)");
         case "": return //cancel button or empty name
         default: break;
     }
-    // let magik = (new Map([["default", function () { tiled.alert("You can't overwrite default layout (because it is auto updated via steam)"); return true; }], ["", function () { return true; }]])).get(layoutName); if (magik) { magik.call(null); return; }
+    // let magik = (new Map([["default", function () { tiled.alert("You can't overwrite \"default\" layout (because it is auto updated via steam)"); return true; }], ["default images", function () { tiled.alert("You can't overwrite \"default images\" layout (because it is auto updated via steam)"); return true; }], ["", function () { return true; }]])).get(layoutName); if (magik) { magik.call(null); return; }
 
     let overwrite = true;
     if (getConfigsNames(globalTiledPath + "/storage/startup_layers").includes(layoutName)) {
@@ -348,6 +349,19 @@ tiled.extendMenu("File", [
     { action: systemName, before: "Close" }
 ]);
 
+systemName = "layout_default_images_" + LocalUtils.getUniqueString();
+const defaultImagesLayoutRef = tiled.registerAction(systemName, function () {
+    LayoutManager.switchTo(defaultImagesLayoutRef);
+    setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultImagesLayoutRef);
+});
+defaultImagesLayoutRef.text = "layout - default images";
+defaultImagesLayoutRef.checkable = true;
+defaultImagesLayoutRef.iconVisibleInMenu = false;
+LayoutManager.registerAction(defaultImagesLayoutRef);
+tiled.extendMenu("File", [
+    { action: systemName, before: "Close" }
+]);
+
 configs.forEach(element => {
     let systemName = "layout_" + element.replace(new RegExp(" ", "g"), "_") + "_" + LocalUtils.getUniqueString();
     const layoutRef = tiled.registerAction(systemName, function () {
@@ -368,7 +382,7 @@ configs.forEach(element => {
 if (configs.includes(selectedLayout)) {
     LayoutManager.switchTo(selectedLayout);
 } else {
-    if (selectedLayout !== "default") tiled.warn("can't find \"" + selectedLayout + "\" , switched to default" + "\n\tIn \"" + scriptName + "\"");
+    if (selectedLayout !== "default" && selectedLayout !== "default images") tiled.warn("can't find \"" + selectedLayout + "\" , switched to \"default\"" + "\n\tIn \"" + scriptName + "\"");
     LayoutManager.switchTo("default");
     setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
 }
@@ -383,21 +397,31 @@ tiled.assetCreated.connect(function (map) {
         let selectedLayout = optionsR.readAll();
         optionsR.close();
 
-        if (selectedLayout === "default" || selectedLayout === "") {
-            let configR = new TextFile("ext:default.config", TextFile.ReadOnly);
-            cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
-            configR.close();
-        } else {
-            if (File.exists(globalTiledPath + "/storage/startup_layers/" + selectedLayout + ".config")) {
-                let configR = new TextFile(globalTiledPath + "/storage/startup_layers/" + selectedLayout + ".config", TextFile.ReadOnly);
+        let configR;
+        switch (selectedLayout) {
+            case "default":
+            case "":
+                configR = new TextFile("ext:default.config", TextFile.ReadOnly);
                 cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
                 configR.close();
-            } else {
-                tiled.warn("Can't find \"" + selectedLayout + "\" , switched to default" + "\n\tIn \"" + scriptName + "\"")
-                LayoutManager.switchTo("default");
-                setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
-                cashedArrayOfMicroLayers = null;
-            }
+                break;
+            case "default images":
+                configR = new TextFile("ext:default images.config", TextFile.ReadOnly);
+                cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
+                configR.close();
+                break;
+            default:
+                if (File.exists(globalTiledPath + "/storage/startup_layers/" + selectedLayout + ".config")) {
+                    configR = new TextFile(globalTiledPath + "/storage/startup_layers/" + selectedLayout + ".config", TextFile.ReadOnly);
+                    cashedArrayOfMicroLayers = MicroLayer.loadLayout(map, configR.readAll(), map.layerCount);
+                    configR.close();
+                } else {
+                    tiled.warn("Can't find \"" + selectedLayout + "\" , switched to \"default\"" + "\n\tIn \"" + scriptName + "\"")
+                    LayoutManager.switchTo("default");
+                    setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
+                    cashedArrayOfMicroLayers = null;
+                }
+                break;
         }
         map.removeLayerAt(0); //Delete default "Tile Layer 1"
     });
@@ -420,13 +444,19 @@ tiled.assetCreated.connect(function (map) {
 
 const DeleteSelectedLayout = tiled.registerAction("Delete selected layout", function () {
     let selectedLayout = getSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini");
-    if (selectedLayout === "default") {
-        tiled.alert("You can't delete default layout file (because it is auto updated via steam) .", "No plz");
-    } else {
-        if (!(tiled.confirm("This will permanently delete \"" + selectedLayout + ".confg\" file .", "Are you sure ?"))) return;
-        LayoutManager.deleteAction(selectedLayout);
-        LayoutManager.switchTo("default");
-        setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
+    switch (selectedLayout) {
+        case "default":
+            tiled.alert("You can't delete \"default\" layout file (because it is auto updated via steam) .", "No plz");
+            break;
+        case "default images":
+            tiled.alert("You can't delete \"default images\" layout file (because it is auto updated via steam) .", "No plz");
+            break;
+        default:
+            if (!(tiled.confirm("This will permanently delete \"" + selectedLayout + ".confg\" file .", "Are you sure ?"))) return;
+            LayoutManager.deleteAction(selectedLayout);
+            LayoutManager.switchTo("default");
+            setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
+            break;
     }
 });
 
