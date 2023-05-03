@@ -272,11 +272,12 @@ let selectedLayout = getSelectedLayout(globalTiledPath + "/storage/startup_layer
 
 const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout", function () {
     selectedLayout = getSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini");
+    let initialName = (selectedLayout === "default" && selectedLayout === "default images") ? "" : selectedLayout;
     let map = tiled.activeAsset;
     if (map === null) return;
 
     let removeSelection = tiled.confirm("Mark all layers in layout as \"not selected\" ?", "Remove selection ?");
-    let layoutName = tiled.prompt("Name your layout", selectedLayout, "Name");
+    let layoutName = tiled.prompt("Name your layout", initialName, "Name");
 
     //replace new line with " " + remove any whitespaces from begin and end + replace windows forbidden characters with "_" + secure forbidden filenames
     layoutName = layoutName.replace(/\n/gm, " ").replace(/(^\s+)|(\s+$)/g, "").replace(/[<>:"/\\|?*\x00-\x1F\x80-\x9f]/g, "_").replace(/^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i, x => x + "_");
