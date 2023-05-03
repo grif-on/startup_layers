@@ -291,8 +291,10 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
     // let magik = (new Map([["default", function () { tiled.alert("You can't overwrite \"default\" layout (because it is auto updated via steam)"); return true; }], ["default images", function () { tiled.alert("You can't overwrite \"default images\" layout (because it is auto updated via steam)"); return true; }], ["", function () { return true; }]])).get(layoutName); if (magik) { magik.call(null); return; }
 
     let overwrite = true;
+    let AddNewMenuEntry = true;
     if (getConfigsNames(globalTiledPath + "/storage/startup_layers").includes(layoutName)) {
         overwrite = tiled.confirm("\"" + layoutName + "\" already exist . Do you want to overwrite it ?", "Overwrite ?")
+        AddNewMenuEntry = false;
     }
     if (!overwrite) return;
 
@@ -301,18 +303,20 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
     (removeSelection) ? configW.write(MicroLayer.getCurrentLayout(map, function () { this.selected = false })) : configW.write(MicroLayer.getCurrentLayout(map));
     configW.close();
 
-    let systemName = "layout_" + layoutName.replace(new RegExp(" ", "g"), "_") + "_" + LocalUtils.getUniqueString();
-    const layoutRef = tiled.registerAction(systemName, function () {
-        LayoutManager.switchTo(layoutRef);
-        setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", layoutRef);
-    });
-    layoutRef.text = "layout - " + layoutName;
-    layoutRef.checkable = true;
-    layoutRef.iconVisibleInMenu = false;
-    LayoutManager.registerAction(layoutRef);
-    tiled.extendMenu("File", [
-        { action: systemName, before: "Delete selected layout" }
-    ]);
+    if (AddNewMenuEntry) {
+        let systemName = "layout_" + layoutName.replace(new RegExp(" ", "g"), "_") + "_" + LocalUtils.getUniqueString();
+        const layoutRef = tiled.registerAction(systemName, function () {
+            LayoutManager.switchTo(layoutRef);
+            setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", layoutRef);
+        });
+        layoutRef.text = "layout - " + layoutName;
+        layoutRef.checkable = true;
+        layoutRef.iconVisibleInMenu = false;
+        LayoutManager.registerAction(layoutRef);
+        tiled.extendMenu("File", [
+            { action: systemName, before: "Delete selected layout" }
+        ]);
+    }
 
 })
 
