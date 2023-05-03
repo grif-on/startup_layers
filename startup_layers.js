@@ -173,6 +173,8 @@ class LayoutManager {
                     setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
                     tiled.log("deleted");
                 }
+            } else {
+                tiled.warn("Can't find \"" + keyName + "\" or smomething wrong in deleteAction method");
             }
         }
     }
