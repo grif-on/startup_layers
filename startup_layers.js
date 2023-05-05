@@ -272,7 +272,7 @@ let selectedLayout = getSelectedLayout(globalTiledPath + "/storage/startup_layer
 
 const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout", function () {
     selectedLayout = getSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini");
-    let initialName = (selectedLayout === "default" && selectedLayout === "default images") ? "" : selectedLayout;
+    let initialName = (selectedLayout === "default" || selectedLayout === "default images") ? "" : selectedLayout;
     let map = tiled.activeAsset;
     if (map === null) return;
 
