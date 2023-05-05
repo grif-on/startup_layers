@@ -284,9 +284,9 @@ const SaveCurrentLayersLayout = tiled.registerAction("Save current layers layout
     if (layoutName.length > 248) { layoutName = layoutName.slice(0, 248); } // 248(name) + 7(.config) = 255
 
     switch (layoutName) {
-        case "default": tiled.alert("You can't overwrite \"default\" layout (because it is auto updated via steam)");
-        case "default images": tiled.alert("You can't overwrite \"default images\" layout (because it is auto updated via steam)");
-        case "": return //cancel button or empty name
+        case "default": { tiled.alert("You can't overwrite \"default\" layout (because it is auto updated via steam)"); return; }
+        case "default images": { tiled.alert("You can't overwrite \"default images\" layout (because it is auto updated via steam)"); return; }
+        case "": return; //cancel button or empty name
         default: break;
     }
     // let magik = (new Map([["default", function () { tiled.alert("You can't overwrite \"default\" layout (because it is auto updated via steam)"); return true; }], ["default images", function () { tiled.alert("You can't overwrite \"default images\" layout (because it is auto updated via steam)"); return true; }], ["", function () { return true; }]])).get(layoutName); if (magik) { magik.call(null); return; }
