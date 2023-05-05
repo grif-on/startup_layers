@@ -158,7 +158,7 @@ class LayoutManager {
     static registerAction(layoutRef) {
         let key = layoutRef.text.slice(9, layoutRef.text.length);
         LayoutManager._layouts.set(key, layoutRef);
-        tiled.log("registered")
+        //tiled.log("registered - " + key);
     }
     static deleteAction(keyName) {
         let layoutRef = LayoutManager._layouts.get(keyName);
@@ -171,7 +171,7 @@ class LayoutManager {
                 if (File.remove(globalTiledPath + "/storage/startup_layers/" + keyName + ".config")) {
                     LayoutManager.switchTo(defaultLayoutRef);
                     setSelectedLayout(globalTiledPath + "/storage/startup_layers/options.ini", defaultLayoutRef);
-                    tiled.log("deleted");
+                    //tiled.log("deleted - " + keyName);
                 }
             } else {
                 tiled.warn("Can't find \"" + keyName + "\" or smomething wrong in \"deleteAction\" method" + "\n\tIn \"" + scriptName + "\"");
@@ -184,12 +184,12 @@ class LayoutManager {
         LayoutManager._layouts.forEach((ref, name) => {
             if (name === key) ref.checked = true; else ref.checked = false;
         });
-        tiled.log("switched to | \"" + key + "\" | " + layoutRef);
+        //tiled.log("switched to | \"" + key + "\" | " + layoutRef);
     }
     static printAllRegistered() {
-        tiled.log("\t\tLayoutManager");
+        //tiled.log("\t\tLayoutManager");
         LayoutManager._layouts.forEach((ref, name) => {
-            tiled.log("name = " + name + (" ").repeat(40 - Math.min(Math.max(name.length, 0), 39)) + "ref = " + ref);
+            //tiled.log("name = " + name + (" ").repeat(40 - Math.min(Math.max(name.length, 0), 39)) + "ref = " + ref);
         });
     }
     static isEmpty() {
@@ -209,10 +209,10 @@ if (!File.exists(globalTiledPath + "/storage/startup_layers")) {
     File.makePath(globalTiledPath + "/storage/startup_layers");
 }
 
-tiled.log("scriptPathName = " + scriptPathName);
-tiled.log("scriptName = " + scriptName);
-tiled.log("globalScriptsPath = " + globalScriptsPath);
-tiled.log("globalTiledPath = " + globalTiledPath);
+//tiled.log("scriptPathName = " + scriptPathName);
+//tiled.log("scriptName = " + scriptName);
+//tiled.log("globalScriptsPath = " + globalScriptsPath);
+//tiled.log("globalTiledPath = " + globalTiledPath);
 
 function checkOptions(where) {
     let map = tiled.activeAsset;
@@ -258,7 +258,7 @@ function getSelectedLayout(optionsPath) {
 function setSelectedLayout(optionsPath, layoutRef) {
     let key = layoutRef.text.slice(9, layoutRef.text.length);
     let configW = new TextFile(optionsPath, TextFile.ReadWrite);
-    tiled.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    //tiled.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     configW.truncate();
     configW.write(key);
     configW.close();
@@ -332,12 +332,12 @@ tiled.extendMenu("File", [
 ]);
 
 tiled.activeAssetChanged.connect(function (map) {
-    tiled.log("active changed");
+    //tiled.log("active changed");
     SaveCurrentLayersLayout.enabled = (!(map === null));
 });
 
 let configs = getConfigsNames(globalTiledPath + "/storage/startup_layers");
-tiled.log("Found startup_layers configs = " + configs);
+//tiled.log("Found startup_layers configs = " + configs);
 
 
 
@@ -492,4 +492,4 @@ tiled.extendMenu("File", [
 
 // tiled.log(tiled.actions); // получить имена всех экшонов (для использования в "before")
 
-tiled.log(LayoutManager.printAllRegistered());
+//tiled.log(LayoutManager.printAllRegistered());
