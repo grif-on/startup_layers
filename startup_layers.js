@@ -229,6 +229,7 @@ function checkOptions(where) {
         if (!File.exists(where + "/one object layer.config")) {
             let configW = new TextFile(where + "/one object layer.config", TextFile.ReadWrite);
             let microLayer = new MicroLayer();
+            microLayer.name = "All other objects";
             microLayer.selected = true;
             configW.write("\"0\":\n" + JSON.stringify(microLayer, null, "\t"));
             configW.close();
